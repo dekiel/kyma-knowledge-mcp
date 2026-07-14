@@ -8,7 +8,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  workflows: write
 
 env:
   ROLLING_RELEASE_TAG: "docs-index-latest"
@@ -62,6 +61,12 @@ jobs:
 
           git add kyma_knowledge_mcp/indexing/docs_sources.json
           git commit -m "chore: auto-update doc sources (new repos + drift fixes)"
+
+          # Rebase onto latest main before pushing to keep workflow files in sync,
+          # which avoids the "refusing to update workflow file without workflows permission" error.
+          git fetch origin main
+          git rebase origin/main
+
           git push --force-with-lease origin "$BRANCH"
 
           # Only create the PR on first run; subsequent runs just update the branch
